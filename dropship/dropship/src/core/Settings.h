@@ -4,6 +4,7 @@
 #include "components/Endpoint.h"
 
 #include "core/Firewall.h"
+#include "core/AutoBlock.h"
 #include "util/watcher/window.h"
 
 #include "images.h"
@@ -23,7 +24,7 @@ namespace dropship::settings {
         const std::string description;
         const std::string ip_ping { "" };
         std::set<std::string> blocked_servers;
-        
+
     };
 
     /* note - always update to_json and from_json if new options are added */
@@ -32,6 +33,11 @@ namespace dropship::settings {
             bool auto_update { false };
             bool ping_servers { false };
             bool tunneling{ true };
+            bool auto_block { false };
+            int auto_block_loss_pct { 20 };
+            int auto_block_latency_ms { 200 };
+            int auto_block_window_pings { 20 };
+            int auto_block_cooldown_min { 10 };
         };
         _dropship_app_settings__options options;
 
@@ -248,6 +254,9 @@ class Settings
         void toggleOptionAutoUpdate();
         void toggleOptionPingServers();
         void toggleOptionTunneling();
+        void toggleOptionAutoBlock();
+
+        core::AutoBlockThresholds getAutoBlockThresholds() const;
 
         void addBlockedEndpoint(std::string endpoint_title);
         void removeBlockedEndpoint(std::string endpoint_title);

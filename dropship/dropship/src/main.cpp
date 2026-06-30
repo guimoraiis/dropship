@@ -30,6 +30,7 @@
 #include "core/Firewall.h"
 #include "core/Update.h"
 #include "core/Tunneling.h"
+#include "core/AutoBlockLog.h"
 
 #include "util/watcher/window.h"
 
@@ -89,6 +90,7 @@ HWND g_hwnd = nullptr;
     std::unique_ptr<Settings> g_settings;
     std::unique_ptr<core::tunneling::Tunneling> g_tunneling;
     std::unique_ptr<util::watcher::window::WindowWatcher> g_window_watcher;
+    std::unique_ptr<core::AutoBlockLog> g_autoblock_log;
 //}
 
 
@@ -377,9 +379,9 @@ int main(int, char**)
 #ifdef _DEBUG
         g_debug = std::make_unique<Debug>();
 #endif
+        g_autoblock_log = std::make_unique<core::AutoBlockLog>();
         g_endpoints = std::make_unique<std::vector<std::shared_ptr<Endpoint2>>>();
         g_firewall = std::make_unique<Firewall>();
-        //g_process_watcher = std::make_unique<ProcessWatcher>("Overwatch.exe");
         g_window_watcher = std::make_unique<util::watcher::window::WindowWatcher>("Overwatch");
         g_settings = std::make_unique<Settings>();
         g_tunneling = std::make_unique<core::tunneling::Tunneling>();
@@ -515,6 +517,14 @@ int main(int, char**)
 #ifdef _DEBUG
     g_debug.reset();
 #endif
+    // Save auto-block log before teardown.
+    if (g_autoblock_log && !g_autoblock_log->getEvents().empty()) {
+        auto log_path = std::filesystem::temp_directory_path() / "dropship" / "autoblock.log";
+        g_autoblock_log->saveToFile(log_path);
+        println("[autoblock] log saved to {}", log_path.string());
+    }
+    g_autoblock_log.reset();
+
     g_endpoints.reset();
     g_firewall.reset();
     g_window_watcher.reset();

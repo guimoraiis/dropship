@@ -165,6 +165,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\App.cpp" />
+    <ClCompile Include="src\core\AutoBlock.cpp" />
+    <ClCompile Include="src\core\AutoBlockLog.cpp" />
     <ClCompile Include="src\components\Endpoint.cpp" />
     <ClCompile Include="src\components\EndpointRender.cpp" />
     <ClCompile Include="src\components\PopupButton.cpp" />
@@ -245,6 +247,8 @@
     <ClInclude Include="src\components\PopupButton.h" />
     <ClInclude Include="src\core\Tunneling.h" />
     <ClInclude Include="src\images.h" />
+    <ClInclude Include="src\core\AutoBlock.h" />
+    <ClInclude Include="src\core\AutoBlockLog.h" />
     <ClInclude Include="src\core\Dashboard.h" />
     <ClInclude Include="src\core\Debug.h" />
     <ClInclude Include="src\core\Firewall.h" />

@@ -1,6 +1,9 @@
 #include "pch.h"
 
 #include "Settings.h"
+#include "AutoBlockLog.h"
+
+extern std::unique_ptr<core::AutoBlockLog> g_autoblock_log;
 
 
 extern std::unique_ptr<std::vector<std::shared_ptr<Endpoint2>>> g_endpoints;
@@ -17,6 +20,11 @@ namespace dropship::settings {
 				{ "auto_update", p.options.auto_update },
 				{ "ping_servers", p.options.ping_servers },
 				{ "tunneling", p.options.tunneling },
+				{ "auto_block", p.options.auto_block },
+				{ "auto_block_loss_pct", p.options.auto_block_loss_pct },
+				{ "auto_block_latency_ms", p.options.auto_block_latency_ms },
+				{ "auto_block_window_pings", p.options.auto_block_window_pings },
+				{ "auto_block_cooldown_min", p.options.auto_block_cooldown_min },
 			}},
 			{"config", {
 				{ "blocked_endpoints", p.config.blocked_endpoints },
@@ -42,6 +50,11 @@ namespace dropship::settings {
 			"/options/auto_update"_json_pointer,
 			"/options/ping_servers"_json_pointer,
 			"/options/tunneling"_json_pointer,
+			"/options/auto_block"_json_pointer,
+			"/options/auto_block_loss_pct"_json_pointer,
+			"/options/auto_block_latency_ms"_json_pointer,
+			"/options/auto_block_window_pings"_json_pointer,
+			"/options/auto_block_cooldown_min"_json_pointer,
 
 			/* vector<string> */
 			"/config/blocked_endpoints"_json_pointer,
@@ -67,6 +80,11 @@ namespace dropship::settings {
 		if (j.contains("/options/auto_update"_json_pointer)) j.at("/options/auto_update"_json_pointer).get_to(p.options.auto_update);
 		if (j.contains("/options/ping_servers"_json_pointer)) j.at("/options/ping_servers"_json_pointer).get_to(p.options.ping_servers);
 		if (j.contains("/options/tunneling"_json_pointer)) j.at("/options/tunneling"_json_pointer).get_to(p.options.tunneling);
+		if (j.contains("/options/auto_block"_json_pointer)) j.at("/options/auto_block"_json_pointer).get_to(p.options.auto_block);
+		if (j.contains("/options/auto_block_loss_pct"_json_pointer)) j.at("/options/auto_block_loss_pct"_json_pointer).get_to(p.options.auto_block_loss_pct);
+		if (j.contains("/options/auto_block_latency_ms"_json_pointer)) j.at("/options/auto_block_latency_ms"_json_pointer).get_to(p.options.auto_block_latency_ms);
+		if (j.contains("/options/auto_block_window_pings"_json_pointer)) j.at("/options/auto_block_window_pings"_json_pointer).get_to(p.options.auto_block_window_pings);
+		if (j.contains("/options/auto_block_cooldown_min"_json_pointer)) j.at("/options/auto_block_cooldown_min"_json_pointer).get_to(p.options.auto_block_cooldown_min);
 
 		if (j.contains("/config/blocked_endpoints"_json_pointer)) j.at("/config/blocked_endpoints"_json_pointer).get_to(p.config.blocked_endpoints);
 
@@ -370,6 +388,21 @@ void Settings::setConfigTunnelingPath(std::optional<std::filesystem::path> path)
 {
 	this->_dropship_app_settings.config.tunneling_path = path;
 	this->tryWriteSettingsToStorage();
+}
+
+void Settings::toggleOptionAutoBlock() {
+	this->_dropship_app_settings.options.auto_block = !this->_dropship_app_settings.options.auto_block;
+	this->tryWriteSettingsToStorage();
+}
+
+core::AutoBlockThresholds Settings::getAutoBlockThresholds() const {
+	auto& o = this->_dropship_app_settings.options;
+	return core::AutoBlockThresholds{
+		.packet_loss_threshold_percent = o.auto_block_loss_pct,
+		.latency_threshold_ms = o.auto_block_latency_ms,
+		.window_ping_count = o.auto_block_window_pings,
+		.cooldown_minutes = o.auto_block_cooldown_min,
+	};
 }
 
 

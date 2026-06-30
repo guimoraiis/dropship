@@ -68,7 +68,6 @@ Dashboard::Dashboard()
 		},
 		{
 			.title = "tunneling configuration",
-			//.tooltip = "default: automatic\n\nThe location of Overwatch.exe must be known\nin order to enable tunneling. in most situations,\ntunneling should automatically locate your\nOverwatch.exe application. if automatically\nfinding it didn't work, a manual configuration popup will appear when you open the application. this can be ignored, but will show up again every launch unless you disable \"tunneling\" in options  • since tunneling only blocks traffic per - application, if you notice dropship is not working at all(you still connect to blocked servers), you may have selected an incorrect Overwatch.exe.you can always disable tunneling if you choose to. ",
 			.action = [this]() {
 				g_settings->setConfigTunnelingPath(std::nullopt);
 				if (!g_settings->getAppSettings().options.tunneling)
@@ -76,6 +75,15 @@ Dashboard::Dashboard()
 					(*g_settings).toggleOptionTunneling();
 				}
 			},
+			.external = false,
+			.divide_next = true,
+		},
+		{
+			.title = "auto-block degraded routes",
+			.description = "",
+			.tooltip = "default: off\n\nAutomatically blocks a server when packet\nloss or high latency is detected on its route.\n\nUseful for SA/Brazil players experiencing\nintermittent route degradation.\n\non  - monitors ping; auto-blocks if threshold breached\noff - manual blocking only (original behavior)\n\nAuto-blocked endpoints show in orange.\nClick an orange endpoint to manually unblock.",
+			.action = [this]() { (*g_settings).toggleOptionAutoBlock(); },
+			.state = [this]() { return (*g_settings).getAppSettings().options.auto_block; },
 			.external = false,
 			.divide_next = true,
 		},

@@ -11,6 +11,7 @@
 // fix me ^
 
 #include "util/ping/Pinger.h"
+#include "core/AutoBlock.h"
 
 // TODO
 // 1. firewall->blockEndpoint()
@@ -57,10 +58,18 @@ class Endpoint2
 		bool getBlockDesired();
 		void setBlockDesired(bool b);
 
-		//void confirm();
-
 		bool _getBlockedState();
 		void _setBlockedState(bool b);
+
+		// Auto-block interface
+		bool isAutoBlocked() const { return _is_auto_blocked; }
+		const std::string& getAutoBlockReason() const { return _auto_block_reason; }
+
+		// Call when user manually unblocks to reset auto-block state.
+		void resetAutoBlock();
+
+		// Called each render frame to check auto-block thresholds.
+		void _checkAutoBlock(bool globally_enabled);
 
 	private:
 		/* this is the title displayed */
@@ -81,14 +90,13 @@ class Endpoint2
 			std::future<void> _ping_future;
 		//};
 
-		//int ping;
 		std::unique_ptr<std::optional<int>> ping;
 		int ping_ms_display;
 
-		/* mirror the firewall state. this could change the "isBlocked()" value */
-		//void syncFromFirewallState();
-
-		/* is this endpoint waiting for a ping? */
-		//bool isDuringPing();
+		// Auto-block state
+		std::unique_ptr<core::AutoBlock> _auto_blocker;
+		std::string _auto_block_reason;
+		bool _is_auto_blocked { false };
+		double _auto_block_last_check { -999.0 };
 };
 

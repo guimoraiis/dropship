@@ -80,17 +80,14 @@ void renderEndpoints() {
             (*(*g_endpoints)[i]).render(i);
 
             if (ImGui::IsItemActivated()) {
-                //printf("%s\n", (*(*endpoints)[i]).getTitle().c_str());
-
-                //(*settings_m).syncEndpoint((*endpoints)[i]);
-
                 if ((*(*g_endpoints)[i]).getBlockDesired()) {
                     (*g_settings).addBlockedEndpoint((*(*g_endpoints)[i]).getTitle());
                 }
                 else {
+                    // User manually unblocking — reset auto-block so it won't instantly re-trigger.
+                    (*(*g_endpoints)[i]).resetAutoBlock();
                     (*g_settings).removeBlockedEndpoint((*(*g_endpoints)[i]).getTitle());
                 }
-
             }
         }
     }
